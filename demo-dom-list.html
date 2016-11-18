@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>dom-module - Demo</title>
+	<!-- 这里修改成相应的路径 -->
+	<script type="text/javascript" src="lib/lcg.build.js"></script>
+</head>
+<body>
+	<!-- people组件定义 -->
+	<div dom-module="people">
+		我叫{{name}},我是{{job}},我{{age}}岁了<button onclick="this.$root.delete();">删除</button>
+	</div>
+
+	<!-- 列表组件定义 -->
+	<div dom-module="people-list">
+		<!-- 使用dom-list定义一个组件表，参数为  (数组名):(组件名) -->
+		<div dom-list="list:people"></div>
+		<div style="margin-top:20px;">
+			姓名<input lid="iname"/>
+			职业<input lid="ijob"/>
+			年龄<input lid="iage"/>
+			<button onclick="this.$root.add();">添加</button>
+		</div>
+		<div style="margin-top:20px;">
+			从下标<input lid="xb" value="1"/>删除<input lid="len" value="1"/>个<button onclick="this.$root.remove();">删除</button>
+		</div>
+	</div>
+
+	<!-- 使用列表 values填写一个全局js变量作为参数 -->
+	<dom-prefab type="people-list" values="datas"></dom-prefab>
+
+</body>
+<script type="text/javascript">
+	//人员组建
+	lcg.bind("people",{
+		extend:"dom-module",
+		init:function(vals){
+			//执行父组件的初始化(dom-module初始化)
+			this._parent("init");
+			//转移参数
+			this.name = vals.name;
+			this.job = vals.job;
+			this.age = vals.age;
+		},
+		//从dom-list中删除自己
+		delete:function(){
+			this._fabList.del(this);
+		}
+	});
+
+	//列表组件
+	lcg.bind("people-list",{
+		extend:"dom-module",
+		init:function(vals){
+			//将数组转移写在父组件初始化之前
+			this.list = vals.list || [];
+			this._parent("init");
+		},
+		//自定义方法-添加人员
+		add:function(){
+			var ids = this.ids;
+			//直接向绑定的数组里push数据内容（内容为传递到相应组件的参数）就可以向dom-list里面添加组件
+			this.list.push({name:ids["iname"].value,job:ids["ijob"].value,age:ids["iage"].value});
+		},
+		//自定义方法-删除人员
+		remove:function(){
+			//直接删除数组内容就会删除掉相应的组件
+			this.list.splice(Number(this.ids["xb"].value),Number(this.ids["len"].value));
+		}
+	});
+	
+
+	//初始化用JSON数据
+	//可以随时在后台输出datas，内容将和组件表相同，可以随时用于后台交互
+	var datas = {
+		list:[
+			{name:"老城哥",job:"程序员",age:22},
+			{name:"邓锐敏",job:"第三产业",age:22},
+			{name:"邓伟聪",job:"程序员",age:22},
+			{name:"黎少聪",job:"程序员",age:22}
+		]
+	}
+</script>
+</html>

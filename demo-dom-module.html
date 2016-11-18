@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>dom-module - Demo</title>
+	<!-- 这里修改成相应的路径 -->
+	<script type="text/javascript" src="lib/lcg.build.js"></script>
+</head>
+<body>
+	<!-- dom-module构造器 dom-module属性填写相应的组件名  在{{}}里的内容将映射代理对象的相应内容为字符串，映射支持属性和inner -->
+	<div dom-module="people">
+		我叫{{name}},我是{{job}}
+		<div>
+			<!-- lid属性可以让你在组件中快速获取到相应的DOM -->
+			姓名<input lid="iname"/>
+			职业<input lid="ijob"/>
+			<!-- 对于组件的所有子DOM，通过$root都可以获取这个组件 -->
+			<!-- 这里直接调用组件自定义的change方法 -->
+			<button onclick="this.$root.change();">修改</button>
+		</div>
+	</div>
+
+	<!-- =====使用组件===== -->
+	<!-- 非兼容写法(IE9+) -->
+	<dom-prefab type="people" values="{name:'老城哥',job:'程序员'}"></dom-prefab>
+
+	<!-- 兼容写法(IE8+) -->
+	<div dom-prefab="people" values="{name:'邓锐敏',job:'第三产业'}"></div>
+
+</body>
+<script type="text/javascript">
+	//基于dom-module的demo
+	//DOM扩展的基本用法
+	//所有的继承自dom-module的组件都要在HTML里有相应的构造器
+	//构造器会在HTML中去除，需要使用的地方可以进行创建
+
+	//组件名(字符串)     组件内容(JSON对象)
+	lcg.bind("people",{
+		//继承自dom-module获得该扩展的所有功能
+		extend:"dom-module",
+		//初始化事件
+		//获取创建组件时的参数
+		init:function(vals/*创建组件时的参数*/){
+			//执行父组件的初始化(dom-module初始化)
+			this._parent("init");
+			//转移参数
+			this.name = vals.name;
+			this.job = vals.job;
+		},
+		//自定义方法-改变名字和职业
+		change:function(name){
+			//this.ids可以获取到相应lid的DOM
+			this.name = this.ids["iname"].value;
+			this.job = this.ids["ijob"].value;
+		}
+	});
+	
+</script>
+</html>

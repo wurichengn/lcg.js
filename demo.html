@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Base - Demo</title>
+	<!-- 这里修改成相应的路径 -->
+	<script type="text/javascript" src="lib/lcg.build.js"></script>
+</head>
+<body>
+	<div id=""></div>
+	<div>
+		姓名<input/>
+		职业<input/>
+		<button onclick="change();">修改</button>
+	</div>
+</body>
+<script type="text/javascript">
+	//基本语法-绑定组建
+	//这个例子是LCG基本语法，没有涉及到DOM扩展内容
+	//自定义的组件可以以任何对象作为代理，基于对象扩展功能，这里以DOM对象为例
+
+	//组件名(字符串)     组件内容(JSON对象)
+	lcg.bind("people",{
+		//代理对象获取函数，组件所有内容将绑定在代理对象上
+		//函数获得创建组件时的参数
+		proxy:function(vals/*创建组件时的参数*/){
+			//返回代理对象
+			//这个例子返回一个由参数的query查找到的Dom对象
+			//除了该函数，其他函数内this均指的是该返回的代理对象
+			return document.querySelector(vals.query);
+		},
+		//初始化事件
+		//获取创建组件时的参数
+		init:function(vals/*创建组件时的参数*/){
+			this.name = vals.name;
+			this.job = vals.job;
+			//执行自定义方法渲染html
+			this.render();
+		},
+		//自定义方法-渲染内容
+		render:function(){
+			//这里的this已经代表代理对象，本例子中代表query到的DOM
+			this.innerHTML = "我叫"+this.name+",我是"+this.job;
+		},
+		//自定义方法-改变名字
+		changeName:function(name){
+			this.name = name;
+			this.render();
+		},
+		//自定义方法-改变职业
+		changeJob:function(job){
+			this.job = job;
+			this.render();
+		}
+	});
+
+
+	//使用组件
+	var people = lcg.create("people",{query:"div",name:"老城哥",job:"程序员"});
+
+	//修改参数
+	var change = function(){
+		people.changeName(document.querySelectorAll("input")[0].value);
+		people.changeJob(document.querySelectorAll("input")[1].value);
+	}
+	
+</script>
+</html>
